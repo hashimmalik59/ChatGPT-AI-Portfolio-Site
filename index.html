@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hash — God-Level Frontend Portfolio</title>
+  <meta name="description" content="God-level portfolio built with HTML, CSS, JS and GSAP. Smooth page transitions, scroll-driven animations, FLIP project cards, magnetic cursor, and parallax layers." />
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#020207;
+      --muted:#9aa3b2;
+      --accent:#00FFC2;
+      --accent-2:#5DE6FF;
+      --glass: rgba(255,255,255,0.04);
+      --radius:18px;
+      --maxW:1200px;
+    }
+
+    /* RESET */
+    *{box-sizing:border-box}html,body{height:100%}
+    body{
+      margin:0; font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+      background:radial-gradient(1200px 600px at 10% 10%, rgba(13,16,24,0.6), transparent 10%),
+                 radial-gradient(800px 400px at 90% 90%, rgba(2,30,60,0.35), transparent 8%),
+                 var(--bg);
+      color:#e7eef8; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden; scroll-behavior:smooth;
+    }
+
+    .wrap{max-width:var(--maxW); margin:0 auto; padding:36px}
+
+    /* NAV */
+    header{
+      position:fixed; left:0; right:0; top:18px; z-index:80; pointer-events:none;
+      display:flex; justify-content:center;
+    }
+    .nav{pointer-events:auto; background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+         padding:10px 16px; border-radius:999px; display:flex; gap:12px; align-items:center; backdrop-filter: blur(6px);
+         box-shadow: 0 6px 30px rgba(2,8,23,0.6);}
+    .nav a{color:var(--muted); text-decoration:none; font-weight:600; padding:8px 10px; border-radius:12px}
+    .nav a.active, .nav a:hover{color:var(--accent); background:linear-gradient(90deg, rgba(0,255,194,0.06), rgba(93,230,255,0.03))}
+
+    /* HERO */
+    .hero{height:100vh; display:grid; grid-template-columns:1fr 420px; gap:40px; align-items:center; padding:72px 0}
+    .hero-left{padding-left:20px}
+    .eyebrow{font-weight:600; color:var(--accent); letter-spacing:1px; margin-bottom:18px}
+    h1{font-family:'Space Grotesk', Inter; font-size:clamp(38px,7vw,84px); line-height:0.95; margin:0}
+    .lead{color:var(--muted); margin-top:18px; font-size:18px}
+
+    /* CTA */
+    .btn{display:inline-flex; gap:10px; align-items:center; background:linear-gradient(90deg,var(--accent),var(--accent-2)); color:#021018; padding:12px 18px; border-radius:12px; font-weight:700; border:none; cursor:pointer}
+    .ghost{background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--muted); padding:10px 14px; border-radius:12px}
+
+    /* HERO RIGHT - card */
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:26px; border-radius:22px; box-shadow:0 20px 60px rgba(3,8,16,0.7); position:relative; overflow:hidden}
+    .profile-pic{width:120px; height:120px; border-radius:18px; background:linear-gradient(180deg,#071229 10%, #0b1a2b 100%); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:28px; color:var(--accent)}
+    .meta{margin-top:16px}
+    .skills{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .chip{background:rgba(255,255,255,0.03); padding:8px 10px;border-radius:10px;font-weight:600;color:var(--muted);font-size:13px}
+
+    /* SECTIONS */
+    section.panel{min-height:80vh; padding:110px 0; position:relative}
+    .projects{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px}
+
+    .project{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:16px; padding:18px; cursor:pointer; overflow:hidden; position:relative}
+    .proj-thumb{height:160px; border-radius:12px; background:linear-gradient(135deg, rgba(0,255,194,0.12), rgba(93,230,255,0.06)); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:18px}
+    .proj-title{margin-top:12px; font-weight:700}
+    .proj-desc{color:var(--muted); margin-top:6px; font-size:14px}
+
+    /* PROJECT DETAILS (FLIP target) */
+    .project.expanded{position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); width:min(980px,94%); height:min(620px,90%); z-index:120; border-radius:20px; padding:28px;}
+    .project .close{position:absolute; right:18px; top:18px; background:transparent; border:0; color:var(--muted); font-weight:700; cursor:pointer}
+
+    /* CONTACT */
+    .contact-form{display:grid; gap:12px; grid-template-columns:1fr 1fr}
+    .field{background:rgba(255,255,255,0.02); padding:12px; border-radius:10px; border:1px solid rgba(255,255,255,0.02); color:inherit}
+    .full{grid-column:1/-1}
+
+    /* FOOTER */
+    footer{padding:26px 0; color:var(--muted)}
+
+    /* CUSTOM CURSOR */
+    .cursor{position:fixed; top:0; left:0; width:28px; height:28px; border-radius:50%; border:2px solid var(--accent); transform:translate(-50%,-50%); pointer-events:none; z-index:9999; mix-blend-mode:screen}
+    .cursor.big{width:72px;height:72px; background:rgba(0,255,194,0.07);}
+
+    /* small screens */
+    @media (max-width:900px){
+      .hero{grid-template-columns:1fr; padding:48px 0}
+      .hero-right{order:-1}
+      .contact-form{grid-template-columns:1fr}
+    }
+
+    /* perf hints */
+    .will-change{will-change:transform,opacity}
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="nav wrap" aria-label="Primary">
+      <a href="#home" class="nav-link active">Home</a>
+      <a href="#projects" class="nav-link">Projects</a>
+      <a href="#about" class="nav-link">About</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </nav>
+  </header>
+
+  <div class="cursor" id="cursor"></div>
+
+  <main class="wrap">
+    <!-- HERO -->
+    <section id="home" class="hero panel">
+      <div class="hero-left">
+        <div class="eyebrow">Frontend Engineer • Teacher's Assistant</div>
+        <h1 id="headline">
+          <span class="word">Hash</span>
+          <span class="word">—</span>
+          <span class="word">Frontend</span>
+          <span class="word">Magician</span>
+        </h1>
+        <p class="lead">I build buttery-smooth interfaces, micro-interactions, and modern UI with HTML, CSS, JS and GSAP. React, TypeScript, Tailwind &amp; Firebase — I use what fits the job.</p>
+
+        <div style="margin-top:22px; display:flex; gap:12px; align-items:center">
+          <button class="btn" id="cta">See Projects</button>
+          <a class="ghost" href="#contact">Hire / Collab</a>
+        </div>
+      </div>
+
+      <aside class="hero-right card">
+        <div style="display:flex;gap:16px; align-items:center">
+          <div class="profile-pic">H</div>
+          <div class="meta">
+            <div style="font-weight:800; font-size:18px">Hash — Frontend Dev</div>
+            <div style="color:var(--muted); font-size:14px; margin-top:6px">React • TS • Tailwind • GSAP • Firebase</div>
+            <div class="skills">
+              <div class="chip">HTML</div>
+              <div class="chip">CSS</div>
+              <div class="chip">JS</div>
+              <div class="chip">GSAP</div>
+              <div class="chip">Animations</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px; display:flex; gap:12px; align-items:center">
+          <div style="font-size:12px; color:var(--muted)">Experience</div>
+          <div style="background:linear-gradient(90deg,var(--accent),var(--accent-2)); padding:6px 10px; border-radius:10px; font-weight:800; color:#021018; font-size:12px">6–7 months TA</div>
+        </div>
+
+      </aside>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="panel">
+      <h2 style="font-size:28px; margin-bottom:18px">Selected Projects</h2>
+      <div class="projects">
+        <!-- Project A -->
+        <article class="project will-change" data-id="1">
+          <div class="proj-thumb">Portfolio UI — Case Study</div>
+          <div class="proj-title">Neon Portfolio</div>
+          <div class="proj-desc">GSAP-driven interactions, FLIP transitions, and microcopy UX.</div>
+          <button class="ghost" style="margin-top:10px">View</button>
+        </article>
+
+        <!-- Project B -->
+        <article class="project will-change" data-id="2">
+          <div class="proj-thumb">E-Commerce Concept</div>
+          <div class="proj-title">Fluid Shop UI</div>
+          <div class="proj-desc">Advanced list animations, card morphs, and accessibility-first design.</div>
+          <button class="ghost" style="margin-top:10px">View</button>
+        </article>
+
+        <!-- Project C -->
+        <article class="project will-change" data-id="3">
+          <div class="proj-thumb">Interactive Resume</div>
+          <div class="proj-title">Resume — Interactive</div>
+          <div class="proj-desc">Timeline with ScrollTrigger, pinned sections, and export to PDF.</div>
+          <button class="ghost" style="margin-top:10px">View</button>
+        </article>
+
+        <!-- Project D (demo) -->
+        <article class="project will-change" data-id="4">
+          <div class="proj-thumb">Micro-interactions</div>
+          <div class="proj-title">Micro-UX Kit</div>
+          <div class="proj-desc">Hover states, magnetic UI, and keyboard-friendly controls.</div>
+          <button class="ghost" style="margin-top:10px">View</button>
+        </article>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="panel">
+      <h2 style="font-size:28px; margin-bottom:12px">About — Under the hood</h2>
+      <p class="lead" style="max-width:880px">Yahan pe mein batata hun ke kaise animations ka engine kaam karta — short version: GSAP ka timeline architecture + ScrollTrigger se ba-hubal control. Neeche kuch technical nuggets:</p>
+
+      <ul style="margin-top:18px; color:var(--muted)">
+        <li><strong>Split text:</strong> headline ko words me split karke staggered reveal.</li>
+        <li><strong>ScrollTrigger:</strong> sections ko pin karna, scrub values se natural parallax.</li>
+        <li><strong>FLIP:</strong> list -> detail expand karna without layout jank.</li>
+        <li><strong>Cursor:</strong> lerp movement using gsap.to for low-cost interpolation.</li>
+      </ul>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="panel">
+      <h2 style="font-size:28px; margin-bottom:12px">Work with me</h2>
+      <form class="contact-form" onsubmit="event.preventDefault(); alert('Demo: open mailto or wire up firebase')">
+        <input class="field" placeholder="Your name" required>
+        <input class="field" placeholder="Email" type="email" required>
+        <input class="field full" placeholder="Project / short brief" required>
+        <button class="btn full" type="submit">Send Message</button>
+      </form>
+    </section>
+
+    <footer>
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap">
+        <div>&copy; <strong>Hash</strong> — Frontend Dev • Built with ❤️ + GSAP</div>
+        <div style="color:var(--muted)">Made with care — single-file demo</div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- GSAP CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+
+  <script>
+    // Register plugins
+    gsap.registerPlugin(ScrollTrigger, Flip);
+
+    // Utilities
+    const q = (sel, ctx=document) => ctx.querySelector(sel);
+    const qa = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+
+    /** ---------- 1) HEADLINE - split words and stagger reveal ---------- */
+    (()=>{
+      const headline = q('#headline');
+      const words = qa('#headline .word');
+      // initial state
+      gsap.set(words, {y:60, opacity:0, rotateX:10, transformOrigin:'50% 50%'});
+      // stagger in
+      gsap.to(words, {y:0, opacity:1, rotateX:0, duration:1.1, ease:'power3.out', stagger:0.08, delay:0.18});
+
+      // micro float to give life
+      gsap.to(headline, {y:6, duration:6, repeat:-1, yoyo:true, ease:'sine.inOut'});
+    })();
+
+    /** ---------- 2) HERO CTA smooth scroll ---------- */
+    q('#cta').addEventListener('click', ()=>{
+      document.querySelector('#projects').scrollIntoView({behavior:'smooth'});
+    });
+
+    /** ---------- 3) Scroll-triggered reveals for panels ---------- */
+    qa('.panel').forEach(panel=>{
+      gsap.from(panel, {
+        scrollTrigger:{trigger:panel, start:'top 92%', end:'bottom 20%', scrub: false},
+        opacity:0, y:40, duration:1.1, ease:'power3.out'
+      });
+    });
+
+    // project cards - simple scale on enter
+    gsap.utils.toArray('.project').forEach((proj, i)=>{
+      gsap.from(proj, {
+        scrollTrigger:{trigger:proj, start:'top 95%', end:'top 60%', toggleActions:'play none none none'},
+        y:30, opacity:0, duration:0.9, ease:'power2.out', delay:i*0.06
+      });
+    });
+
+    /** ---------- 4) FLIP: expand project to modal-like detail ---------- */
+    qa('.project').forEach(proj=>{
+      proj.addEventListener('click', ()=>{
+        // keep minimal DOM changes — toggle a class then FLIP between states
+        const state = Flip.getState('.project');
+        proj.classList.toggle('expanded');
+        if(proj.classList.contains('expanded')){
+          // add close btn dynamically if not present
+          if(!proj.querySelector('.close')){
+            const btn = document.createElement('button');
+            btn.textContent = 'Close'; btn.className='close';
+            btn.onclick = (e)=>{ e.stopPropagation(); closeProj(proj); };
+            proj.appendChild(btn);
+          }
+        } else {
+          const c = proj.querySelector('.close'); if(c) c.remove();
+        }
+        Flip.from(state, {duration:0.9, ease:'expo.inOut', absolute:true});
+      });
+    });
+
+    function closeProj(proj){
+      const state = Flip.getState('.project');
+      proj.classList.remove('expanded');
+      const c = proj.querySelector('.close'); if(c) c.remove();
+      Flip.from(state, {duration:0.7, ease:'power2.inOut', absolute:true});
+    }
+
+    /** ---------- 5) Navigation active link on scroll (IntersectionObserver) ---------- */
+    (function navObserver(){
+      const links = qa('.nav-link');
+      const sections = links.map(l=> document.querySelector(l.getAttribute('href')) );
+      const obs = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            qa('.nav-link').forEach(a=> a.classList.toggle('active', a.getAttribute('href') === '#'+entry.target.id));
+          }
+        });
+      }, {threshold:0.45});
+      sections.forEach(s=> s && obs.observe(s));
+    })();
+
+    /** ---------- 6) Magnetic Cursor & hover interactions ---------- */
+    (function cursor(){
+      const cursor = q('#cursor');
+      let mouse = {x:window.innerWidth/2, y:window.innerHeight/2};
+      let pos = {x:mouse.x, y:mouse.y};
+      const lerp = (a,b,t)=> a+(b-a)*t;
+
+      window.addEventListener('mousemove', e=>{ mouse.x = e.clientX; mouse.y = e.clientY; });
+
+      // smooth following
+      gsap.ticker.add(()=>{
+        pos.x = lerp(pos.x, mouse.x, 0.18);
+        pos.y = lerp(pos.y, mouse.y, 0.18);
+        gsap.set(cursor, {x:pos.x, y:pos.y});
+      });
+
+      // enlarge on interactive elements
+      const interactive = 'button, a, .project, .proj-thumb, .btn, .ghost';
+      qa(interactive).forEach(el=>{
+        el.addEventListener('mouseenter', ()=> cursor.classList.add('big'));
+        el.addEventListener('mouseleave', ()=> cursor.classList.remove('big'));
+      });
+
+      // magnetic effect for project thumbnails
+      qa('.proj-thumb').forEach(box=>{
+        box.addEventListener('mousemove', e=>{
+          const r = box.getBoundingClientRect();
+          const px = (e.clientX - r.left) - r.width/2;
+          const py = (e.clientY - r.top) - r.height/2;
+          gsap.to(box, {x:px*0.06, y:py*0.04, rotateX:py*0.02, rotateY:px*0.03, duration:0.5, ease:'power3.out'});
+        });
+        box.addEventListener('mouseleave', ()=> gsap.to(box, {x:0,y:0,rotateX:0,rotateY:0,duration:0.8,ease:'elastic.out(1,0.6)'}));
+      });
+    })();
+
+    /** ---------- 7) Parallax background on scroll (subtle) ---------- */
+    gsap.to('body', {
+      backgroundPosition: '5% 5%',
+      ease:'none',
+      scrollTrigger: {
+        scrub:0.8
+      }
+    });
+
+    /** ---------- 8) Accessibility: keyboard to open projects (Enter) ---------- */
+    qa('.project').forEach(p=> p.setAttribute('tabindex', '0'));
+    qa('.project').forEach(p=> p.addEventListener('keydown', e=>{ if(e.key==='Enter') p.click(); }));
+
+    // small perf: reduce motion preference
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      gsap.globalTimeline.timeScale(2.5);
+      qa('.project').forEach(p=> p.removeEventListener('mousemove', ()=>{}));
+    }
+
+    // end of script
+  </script>
+</body>
+</html>
